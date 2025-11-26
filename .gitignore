@@ -1,5 +1,7 @@
-*.html
+.DS_Store
 *.env
-*.pdf
+*.html
 *.json
 *.log
+*.pdf
+*.pptx
