@@ -1,12 +1,10 @@
-import { readdir, readFile } from "fs/promises";
-import { join } from "path";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
 import { CourseContent } from "@/components/course-content";
-import { CourseSummary } from "@/types/course";
+import { getCourseById, getCoursesBaseURL } from "@/lib/courses-api";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -19,32 +17,17 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-async function getCourseData(id: string): Promise<{ summary: CourseSummary; dir: string } | null> {
-  const coursePath = join(process.cwd(), "public", "courses", id);
-
-  try {
-    const files = await readdir(coursePath);
-    const summaryFile = files.find((f) => f.endsWith("_course_summary.json"));
-
-    if (!summaryFile) return null;
-
-    const summaryData = await readFile(join(coursePath, summaryFile), "utf-8");
-    return { summary: JSON.parse(summaryData) as CourseSummary, dir: id };
-  } catch {
-    return null;
-  }
-}
-
 export default async function CoursePage({ params }: Props) {
   const { id } = await params;
-  const data = await getCourseData(id);
+  const data = await getCourseById(id);
 
   if (!data) {
     notFound();
   }
 
   const { summary, dir } = data;
-  const basePath = `/courses/${dir}`;
+  const baseURL = getCoursesBaseURL();
+  const basePath = `${baseURL}/${dir}`;
   const successRate =
     summary.total_downloaded > 0
       ? Math.round(
@@ -76,7 +59,7 @@ export default async function CoursePage({ params }: Props) {
           type: "file",
           title: cls.class_name,
           subtitle: `Unit ${unit.unit_number}`,
-          href: `/courses/${dir}/${unit.unit_directory}/${cls.filename}`,
+          href: `${baseURL}/${dir}/${unit.unit_directory}/${cls.filename}`,
           download: true,
         });
       }

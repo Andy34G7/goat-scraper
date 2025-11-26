@@ -1,10 +1,9 @@
-import { readdir, readFile } from "fs/promises";
-import { join } from "path";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/header";
 import { CourseSummary } from "@/types/course";
+import { getAllCourses, getCoursesBaseURL } from "@/lib/courses-api";
 import { 
   ArrowRight, 
   GraduationCap, 
@@ -17,34 +16,9 @@ import {
   CheckCircle
 } from "lucide-react";
 
-async function getAllCourses(): Promise<{ dir: string; summary: CourseSummary }[]> {
-  const coursesPath = join(process.cwd(), "public", "courses");
-  
-  try {
-    const entries = await readdir(coursesPath, { withFileTypes: true });
-    const courseDirs = entries.filter((e) => e.isDirectory() && e.name.startsWith("course"));
-
-    const courses = await Promise.all(
-      courseDirs.map(async (dir) => {
-        const dirPath = join(coursesPath, dir.name);
-        const files = await readdir(dirPath);
-        const summaryFile = files.find((f) => f.endsWith("_course_summary.json"));
-        
-        if (!summaryFile) return null;
-
-        const summaryData = await readFile(join(dirPath, summaryFile), "utf-8");
-        return { dir: dir.name, summary: JSON.parse(summaryData) as CourseSummary };
-      })
-    );
-
-    return courses.filter((c): c is { dir: string; summary: CourseSummary } => c !== null);
-  } catch {
-    return [];
-  }
-}
-
 function buildSearchItems(courses: { dir: string; summary: CourseSummary }[]) {
   const items: { type: "course" | "unit" | "file"; title: string; subtitle?: string; href: string; download?: boolean }[] = [];
+  const baseURL = getCoursesBaseURL();
 
   for (const { dir, summary } of courses) {
     items.push({
@@ -68,7 +42,7 @@ function buildSearchItems(courses: { dir: string; summary: CourseSummary }[]) {
             type: "file",
             title: cls.class_name,
             subtitle: `Unit ${unit.unit_number}`,
-            href: `/courses/${dir}/${unit.unit_directory}/${cls.filename}`,
+            href: `${baseURL}/${dir}/${unit.unit_directory}/${cls.filename}`,
             download: true,
           });
         }

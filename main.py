@@ -91,6 +91,39 @@ logger = setup_logger()  # Default logger for initialization
 
 
 # ============================================================================
+# COURSES INDEX MANAGEMENT
+# ============================================================================
+
+def update_courses_index(base_dir: Path) -> None:
+    """
+    Update the index.json file in the courses directory.
+    This file lists all available course directories for the frontend API.
+    """
+    index_file = base_dir / "index.json"
+    
+    # Find all course directories
+    course_dirs = []
+    if base_dir.exists():
+        for entry in sorted(base_dir.iterdir()):
+            if entry.is_dir() and entry.name.startswith("course"):
+                # Verify it has a summary file
+                has_summary = any(f.name.endswith("_course_summary.json") for f in entry.iterdir() if f.is_file())
+                if has_summary:
+                    course_dirs.append(entry.name)
+    
+    # Write the index file
+    index_data = {
+        "courses": course_dirs,
+        "updated_at": __import__("datetime").datetime.now().isoformat()
+    }
+    
+    with open(index_file, 'w', encoding='utf-8') as f:
+        json.dump(index_data, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Updated courses index: {len(course_dirs)} courses in {index_file}")
+
+
+# ============================================================================
 # FILE CONVERSION UTILITIES  
 # ============================================================================
 
@@ -959,6 +992,9 @@ def batch_download_all(fetcher: PESUPDFFetcher, course_id: str, course_name: str
     with open(summary_file, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     
+    # Update the courses index.json for the frontend API
+    update_courses_index(course_dir.parent)
+    
     print("\n" + "=" * 60)
     print(f"{Fore.GREEN}{Style.BRIGHT}Complete!{Style.RESET_ALL} Downloaded: {Fore.GREEN}{total_downloaded}{Style.RESET_ALL}, Failed: {Fore.RED}{total_failed}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}Location:{Style.RESET_ALL} {course_dir}")
@@ -1244,7 +1280,25 @@ def main():
         type=str,
         help="Course code/ID to download directly (skips interactive selection)"
     )
+    parser.add_argument(
+        "--update-index",
+        action="store_true",
+        help="Only update the courses index.json file (no download)"
+    )
     args = parser.parse_args()
+    
+    # Handle --update-index flag (no login required)
+    if args.update_index:
+        from dotenv import load_dotenv
+        load_dotenv()
+        base_dir_env = os.getenv("BASE_DIR", "frontend/public/courses")
+        base_dir = Path(__file__).parent / base_dir_env
+        if base_dir.exists():
+            update_courses_index(base_dir)
+            print(f"✓ Updated index.json in {base_dir}")
+        else:
+            print(f"❌ Courses directory not found: {base_dir}")
+        return
     
     print("PESU Academy PDF Fetcher")
     print("-" * 60)
@@ -1252,7 +1306,6 @@ def main():
     # Load credentials from .env file
     try:
         from dotenv import load_dotenv
-        import os
         load_dotenv()
         
         username = os.getenv("PESU_USERNAME")

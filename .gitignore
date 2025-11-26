@@ -5,3 +5,5 @@
 *.log
 *.pdf
 *.pptx
+.vercel
+*.ppt
