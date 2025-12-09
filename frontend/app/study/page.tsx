@@ -22,6 +22,8 @@ import {
   Maximize2,
   Gamepad2,
   X as XIcon,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useProgress } from "@/components/progress-provider";
@@ -35,6 +37,11 @@ export default function StudyPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [scale, setScale] = useState(100);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [collapsedUnits, setCollapsedUnits] = useState<Record<number, boolean>>({});
+
+  const toggleUnit = (unitNum: number) => {
+    setCollapsedUnits((prev) => ({ ...prev, [unitNum]: !prev[unitNum] }));
+  };
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
   // Brainrot mode only available with PRO=true in .env
@@ -162,57 +169,76 @@ export default function StudyPage() {
         {/* PDF List */}
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-2">
-            {groupedItems.map(({ unitNum, unitComplete, items: unitItems }) => (
-              <div key={`unit-${unitNum}`}>
-                <div className="px-2 py-1 text-xs text-slate-400 flex items-center justify-between">
-                  <span>Unit {unitNum}</span>
-                  {unitComplete && <Badge variant="secondary">Unit Complete</Badge>}
-                </div>
-                <div className="space-y-1">
-                  {unitItems.map(({ item, index, isActive, isComplete }) => (
-                    <div
-                      key={item.id}
-                      className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer group transition-colors min-w-0 ${
-                        isActive
-                          ? "bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800"
-                          : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
-                      onClick={() => setActiveIndex(index)}
-                    >
-                      <div className="relative shrink-0">
-                        <FileText className="h-5 w-5 text-red-500" />
-                        <Badge
-                          className="absolute -top-2 -left-2 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                          variant={isActive ? "default" : "secondary"}
+            {groupedItems.map(({ unitNum, unitComplete, items: unitItems }) => {
+              const isCollapsed = !!collapsedUnits[unitNum];
+              return (
+                <div key={`unit-${unitNum}`}>
+                  <button
+                    onClick={() => toggleUnit(unitNum)}
+                    className="w-full text-left px-2 py-2 text-xs text-slate-400 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md"
+                    aria-expanded={!isCollapsed}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>Unit {unitNum}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      {unitComplete && <Badge variant="secondary">Unit Complete</Badge>}
+                      {isCollapsed ? (
+                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                      ) : (
+                        <ChevronUp className="h-4 w-4 text-slate-400" />
+                      )}
+                    </span>
+                  </button>
+
+                  {!isCollapsed && (
+                    <div className="space-y-1">
+                      {unitItems.map(({ item, index, isActive, isComplete }) => (
+                        <div
+                          key={item.id}
+                          className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer group transition-colors min-w-0 ${
+                            isActive
+                              ? "bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800"
+                              : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                          }`}
+                          onClick={() => setActiveIndex(index)}
                         >
-                          {index + 1}
-                        </Badge>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate ${isComplete ? 'text-green-400' : ''}`}>
-                          {item.title}
-                        </p>
-                        <p className="text-xs text-slate-500 truncate">Unit {item.unitNumber}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeItem(item.id);
-                          if (index <= activeIndex && activeIndex > 0) {
-                            setActiveIndex(activeIndex - 1);
-                          }
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                          <div className="relative shrink-0">
+                            <FileText className="h-5 w-5 text-red-500" />
+                            <Badge
+                              className="absolute -top-2 -left-2 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                              variant={isActive ? "default" : "secondary"}
+                            >
+                              {index + 1}
+                            </Badge>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium truncate ${isComplete ? 'text-green-400' : ''}`}>
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-slate-500 truncate">Unit {item.unitNumber}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeItem(item.id);
+                              if (index <= activeIndex && activeIndex > 0) {
+                                setActiveIndex(activeIndex - 1);
+                              }
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
       </div>
