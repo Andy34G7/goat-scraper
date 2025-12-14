@@ -1,12 +1,12 @@
 .DS_Store
+.env.local
+.vercel
+*.docx
 *.env
 *.html
 *.log
 *.pdf
-*.pptx
-.vercel
 *.ppt
+*.pptx
 *.pyc
-*.docx
 frontend/public/courses/
-.env.local
