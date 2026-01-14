@@ -58341,8 +58341,8 @@
   },
   {
     "id": "16968",
-    "subjectCode": "SSM09SS",
-    "subjectName": "SSM09SS-SOCIAL SCIENCE"
+    "subjectCode": "25SSM09SS",
+    "subjectName": "25SSM09SS-SOCIAL SCIENCE"
   },
   {
     "id": "16969",
@@ -67291,23 +67291,23 @@
   },
   {
     "id": "18758",
-    "subjectCode": "GT24AM0404",
-    "subjectName": "GT24AM0404-Computer Vision"
+    "subjectCode": "M0404",
+    "subjectName": "M0404-Computer Vision"
   },
   {
     "id": "18759",
-    "subjectCode": "GT24AM0405",
-    "subjectName": "GT24AM0405-Augmented Reality & Virtual Reality"
+    "subjectCode": "M0405",
+    "subjectName": "M0405-Augmented Reality & Virtual Reality"
   },
   {
     "id": "18760",
-    "subjectCode": "GT24AM0406",
-    "subjectName": "GT24AM0406-Manufacturing Execution Systems (MES)"
+    "subjectCode": "M0406",
+    "subjectName": "M0406-Manufacturing Execution Systems (MES)"
   },
   {
     "id": "18761",
-    "subjectCode": "GT24AM0407",
-    "subjectName": "GT24AM0407-Computer Integrated Manufacturing (CIM)"
+    "subjectCode": "M0407",
+    "subjectName": "M0407-Computer Integrated Manufacturing (CIM)"
   },
   {
     "id": "18762",
@@ -71476,8 +71476,8 @@
   },
   {
     "id": "19595",
-    "subjectCode": "GT24AM0406",
-    "subjectName": "GT24AM0406-P-Manufacturing Execution Systems (MES)"
+    "subjectCode": "M0406",
+    "subjectName": "M0406-P-Manufacturing Execution Systems (MES)"
   },
   {
     "id": "19596",
@@ -75747,7 +75747,7 @@
   {
     "id": "20449",
     "subjectCode": "UM23BH321A",
-    "subjectName": "UM23BH321A-CULINARY SPECIALIZATION PRACTICAL"
+    "subjectName": "UM23BH321A-Culinary Specialization Practical"
   },
   {
     "id": "20450",
@@ -76012,7 +76012,7 @@
   {
     "id": "20502",
     "subjectCode": "UM23BH323A",
-    "subjectName": "UM23BH323A-FRONT OFFICE SPECIALIZATION PRACTICAL"
+    "subjectName": "UM23BH323A-Front Office Specialization Practical"
   },
   {
     "id": "20503",
@@ -76022,7 +76022,7 @@
   {
     "id": "20504",
     "subjectCode": "UM23BH325A",
-    "subjectName": "UM23BH325A-EVENT SPECIALIZATION PRACTICAL"
+    "subjectName": "UM23BH325A-Event  Specialization Practical"
   },
   {
     "id": "20505",
@@ -76812,7 +76812,7 @@
   {
     "id": "20662",
     "subjectCode": "UB24PY721A",
-    "subjectName": "UB24PY721A-Discpline specific project"
+    "subjectName": "UB24PY721A-Discipline Specific Project"
   },
   {
     "id": "20663",
@@ -76877,7 +76877,7 @@
   {
     "id": "20675",
     "subjectCode": "UB24PY753AD3",
-    "subjectName": "UB24PY753AD3-Workplace Innovation and Employee Engagement (Lab-In)"
+    "subjectName": "UB24PY753AD3-Workplace Innovation and Employee Engagement"
   },
   {
     "id": "20676",
@@ -77072,7 +77072,7 @@
   {
     "id": "20714",
     "subjectCode": "UM24BB231A",
-    "subjectName": "UM24BB231A-Startup and EDP"
+    "subjectName": "UM24BB231A-Startup and Entrepreneurship Development"
   },
   {
     "id": "20715",
@@ -78122,7 +78122,7 @@
   {
     "id": "20924",
     "subjectCode": "UM22AC454A",
-    "subjectName": "UM22AC454A-CAPTONE PROJECT"
+    "subjectName": "UM22AC454A-Capstone Project"
   },
   {
     "id": "20925",
@@ -80187,7 +80187,7 @@
   {
     "id": "21337",
     "subjectCode": "UZ22UZ423A",
-    "subjectName": "UZ22UZ423A-CIE Essentials of Innovation & Entrepreneurship - Part 1"
+    "subjectName": "UZ22UZ423A-CIE Essentials of Innovation & Entrepreneurship - I"
   },
   {
     "id": "21338",
@@ -81332,7 +81332,7 @@
   {
     "id": "21566",
     "subjectCode": "UE23ME321A",
-    "subjectName": "UE23ME321A-CAPSTONE PROJECT PHASE - I"
+    "subjectName": "UE23ME321A-Capstone Project Phase - I"
   },
   {
     "id": "21567",
@@ -81547,7 +81547,7 @@
   {
     "id": "21609",
     "subjectCode": "UE23EE321A",
-    "subjectName": "UE23EE321A-Capstone Project Phase I"
+    "subjectName": "UE23EE321A-Capstone Project Phase - I"
   },
   {
     "id": "21610",
@@ -82297,7 +82297,7 @@
   {
     "id": "21759",
     "subjectCode": "UL23BA342B",
-    "subjectName": "UL23BA342B-Macro Economics"
+    "subjectName": "UL23BA342B-Society and Law"
   },
   {
     "id": "21760",
@@ -82362,7 +82362,7 @@
   {
     "id": "21772",
     "subjectCode": "UL25BA142B",
-    "subjectName": "UL25BA142B-Society and Law"
+    "subjectName": "UL25BA142B-Macro Economics"
   },
   {
     "id": "21773",
@@ -82422,7 +82422,7 @@
   {
     "id": "21784",
     "subjectCode": "UL25BL142B",
-    "subjectName": "UL25BL142B-Law of Crimes - II"
+    "subjectName": "UL25BL142B-Law of Crimes - I"
   },
   {
     "id": "21785",
@@ -83538,5 +83538,200 @@
     "id": "22007",
     "subjectCode": "UE23EE343BD4",
     "subjectName": "UE23EE343BD4-Solar Photovoltaic Systems"
+  },
+  {
+    "id": "22008",
+    "subjectCode": "PS25SC001",
+    "subjectName": "PS25SC001-Mathematics"
+  },
+  {
+    "id": "22009",
+    "subjectCode": "PC25CM001",
+    "subjectName": "PC25CM001-Accountancy"
+  },
+  {
+    "id": "22010",
+    "subjectCode": "UB25PY651BA1",
+    "subjectName": "UB25PY651BA1-Psychopathology"
+  },
+  {
+    "id": "22011",
+    "subjectCode": "UB25PY652BA2",
+    "subjectName": "UB25PY652BA2-Psychological Assessments & Diagnostics"
+  },
+  {
+    "id": "22012",
+    "subjectCode": "UB25PY651BB1",
+    "subjectName": "UB25PY651BB1-Foundations of Counselling & Psychotherapy"
+  },
+  {
+    "id": "22013",
+    "subjectCode": "UB25PY652BB2",
+    "subjectName": "UB25PY652BB2-Counselling Skills"
+  },
+  {
+    "id": "22014",
+    "subjectCode": "UB25PY651BC1",
+    "subjectName": "UB25PY651BC1- Understanding Criminal Minds"
+  },
+  {
+    "id": "22015",
+    "subjectCode": "UB25PY651BD1",
+    "subjectName": "UB25PY651BD1-Applied Workplace Psychology"
+  },
+  {
+    "id": "22016",
+    "subjectCode": "UA22FA432AA2",
+    "subjectName": "UA22FA432AA2-Prefabricated Architectural Construction"
+  },
+  {
+    "id": "22017",
+    "subjectCode": "UA22FA432AA1",
+    "subjectName": "UA22FA432AA1-Disaster Mitigation and Management"
+  },
+  {
+    "id": "22018",
+    "subjectCode": "UA22FA433AB1",
+    "subjectName": "UA22FA433AB1-Building Information Modelling"
+  },
+  {
+    "id": "22019",
+    "subjectCode": "UM25BH003",
+    "subjectName": "UM25BH003-AI Lecture"
+  },
+  {
+    "id": "22020",
+    "subjectCode": "UM25BE105",
+    "subjectName": "UM25BE105-Mentor Mentee"
+  },
+  {
+    "id": "22021",
+    "subjectCode": "UM24BE106",
+    "subjectName": "UM24BE106-Mentor Mentee"
+  },
+  {
+    "id": "22022",
+    "subjectCode": "UL25KK141B",
+    "subjectName": "UL25KK141B-Kannada Kali"
+  },
+  {
+    "id": "22023",
+    "subjectCode": "UL25LK142B",
+    "subjectName": "UL25LK142B-Legal Kannada"
+  },
+  {
+    "id": "22024",
+    "subjectCode": "UB25PY651BC2",
+    "subjectName": "UB25PY651BC2- Forensic Assessment and Interview I"
+  },
+  {
+    "id": "22025",
+    "subjectCode": "UB25PY652BD2",
+    "subjectName": "UB25PY652BD2-Group Dynamics"
+  },
+  {
+    "id": "22026",
+    "subjectCode": "UB25PY651B",
+    "subjectName": "UB25PY651B-Applied Social Psychology and Group Processes"
+  },
+  {
+    "id": "22027",
+    "subjectCode": "UB25PY653B",
+    "subjectName": "UB25PY653B-Cognitive Neuroscience"
+  },
+  {
+    "id": "22028",
+    "subjectCode": "UB25PY631B",
+    "subjectName": "UB25PY631B-Internship I"
+  },
+  {
+    "id": "22029",
+    "subjectCode": "UB25PY621B",
+    "subjectName": "UB25PY621B-Research Project"
+  },
+  {
+    "id": "22030",
+    "subjectCode": "2533",
+    "subjectName": "2533-PHYSICS"
+  },
+  {
+    "id": "22031",
+    "subjectCode": "2534",
+    "subjectName": "2534-CHEMISTRY"
+  },
+  {
+    "id": "22032",
+    "subjectCode": "2535",
+    "subjectName": "2535-MATHEMATICS"
+  },
+  {
+    "id": "22033",
+    "subjectCode": "2536",
+    "subjectName": "2536-BIOLOGY"
+  },
+  {
+    "id": "22034",
+    "subjectCode": "2541",
+    "subjectName": "2541-COMPUTER SCIENCE"
+  },
+  {
+    "id": "22035",
+    "subjectCode": "2540",
+    "subjectName": "2540-ELECTRONICS"
+  },
+  {
+    "id": "22036",
+    "subjectCode": "251",
+    "subjectName": "251-KANNADA"
+  },
+  {
+    "id": "22037",
+    "subjectCode": "259",
+    "subjectName": "259-SANSKRIT"
+  },
+  {
+    "id": "22038",
+    "subjectCode": "253",
+    "subjectName": "253-HINDI"
+  },
+  {
+    "id": "22039",
+    "subjectCode": "255",
+    "subjectName": "255-TELUGU"
+  },
+  {
+    "id": "22040",
+    "subjectCode": "252",
+    "subjectName": "252-ENGLISH"
+  },
+  {
+    "id": "22041",
+    "subjectCode": "2527",
+    "subjectName": "2527-BUSINESS STUDIES"
+  },
+  {
+    "id": "22042",
+    "subjectCode": "2530",
+    "subjectName": "2530-ACCOUNTANCY"
+  },
+  {
+    "id": "22043",
+    "subjectCode": "2522",
+    "subjectName": "2522-ECONOMICS"
+  },
+  {
+    "id": "22044",
+    "subjectCode": "2524",
+    "subjectName": "2524-GEOGRAPHY"
+  },
+  {
+    "id": "22045",
+    "subjectCode": "2575",
+    "subjectName": "2575-BASIC MATHS"
+  },
+  {
+    "id": "22046",
+    "subjectCode": "2531",
+    "subjectName": "2531-STATISTICS"
   }
 ]

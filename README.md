@@ -7,7 +7,11 @@ Automatically download course materials (slides, PDFs) from PESU Academy.
 - Fuzzy search through 16,000+ courses using `fzf`
 - Regex pattern matching to download multiple courses at once
 - Batch download all materials for a course
+- Control concurrent downloads with `PDF_FETCHER_MAX_WORKERS` (env var) or `--max-workers N` CLI flag (overrides env var; default: 5)
+- Use `--verbose` to enable detailed per-file logging (defaults to concise mode)
+- Provide multiple course codes by repeating `-c`/`--course-code` (e.g., `-c CODE1 -c CODE2`), by supplying a single space- or comma-separated `-c` value (e.g., `-c "CODE1 CODE2"`), or use `-p/--pattern` to match many courses with a regex
 - Automatic PDF merging per unit and ESA (all units combined)
+- Stores SHA-256 checksums in the course summary JSON to avoid unnecessary re-downloads and re-merges when re-running the script
 - Organized directory structure by units
 - Login with credentials from `.env` file
 - Interactive mode for selective downloads
