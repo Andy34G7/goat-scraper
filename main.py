@@ -17,6 +17,7 @@ import argparse
 import subprocess
 import shutil
 import getpass
+import tempfile
 from typing import Optional, Dict, List, Any, Tuple
 import re
 import requests
@@ -135,6 +136,125 @@ def update_courses_index(base_dir: Path) -> None:
 # ============================================================================
 
 
+def _read_prefix(path: Path, size: int = 4096) -> bytes:
+    try:
+        with open(path, "rb") as f:
+            return f.read(size)
+    except Exception:
+        return b""
+
+
+def _is_zip_container(path: Path) -> bool:
+    # Office OpenXML formats (pptx/docx/xlsx) are ZIP containers.
+    prefix = _read_prefix(path, 8)
+    return prefix.startswith(b"PK")
+
+
+def _is_pdf(path: Path) -> bool:
+    prefix = _read_prefix(path, 8)
+    return prefix.startswith(b"%PDF")
+
+
+def _looks_like_html(path: Path) -> bool:
+    prefix = _read_prefix(path, 512).lstrip()
+    lower = prefix.lower()
+    return lower.startswith(b"<!doctype html") or lower.startswith(b"<html")
+
+
+def _truthy_env(name: str, default: str = "0") -> bool:
+    return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _should_keep_repaired_artifacts() -> bool:
+    return _truthy_env("PDF_FETCHER_KEEP_REPAIRED", default="0")
+
+
+def _list_office_sources(unit_dir: Path) -> List[Path]:
+    """List Office source docs in a unit directory.
+
+    Excludes LibreOffice zip-repair artifacts (e.g. *_repaired.pptx).
+    """
+    office_exts = {".pptx", ".ppt", ".docx", ".doc", ".xlsx", ".xls"}
+    sources: List[Path] = []
+    try:
+        for p in unit_dir.iterdir():
+            if not p.is_file():
+                continue
+            if p.suffix.lower() not in office_exts:
+                continue
+            if p.stem.endswith("_repaired"):
+                continue
+            sources.append(p)
+    except Exception:
+        return []
+    return sources
+
+
+def _validate_and_retry_office_conversions(
+    unit_dir: Path,
+) -> Tuple[int, int, List[str]]:
+    """Ensure each Office source has a corresponding non-empty PDF.
+
+    Returns:
+      (total_sources, converted_sources, missing_filenames)
+    """
+    sources = _list_office_sources(unit_dir)
+    missing: List[str] = []
+    converted_ok = 0
+
+    for src in sources:
+        expected_pdf = src.with_suffix(".pdf")
+        if (
+            expected_pdf.exists()
+            and expected_pdf.stat().st_size > 0
+            and _is_pdf(expected_pdf)
+        ):
+            converted_ok += 1
+            continue
+
+        # Retry conversion once (synchronously) to avoid missing slides due to timing.
+        try:
+            pdf = convert_to_pdf(src)
+        except Exception as e:
+            logger.warning(f"Conversion retry exception for {src.name}: {e}")
+            pdf = None
+
+        if pdf and pdf.exists() and pdf.stat().st_size > 0 and _is_pdf(pdf):
+            converted_ok += 1
+            continue
+
+        missing.append(src.name)
+
+    return (len(sources), converted_ok, missing)
+
+
+def _unique_existing_pdfs(paths: List[Path]) -> List[Path]:
+    """Return a de-duplicated list of valid PDFs, preserving the first-seen order."""
+    out: List[Path] = []
+    seen: set[str] = set()
+    for p in paths:
+        try:
+            if not p or not p.exists() or p.stat().st_size <= 0:
+                continue
+            if p.suffix.lower() != ".pdf":
+                continue
+            # Avoid merging previously merged outputs back into themselves.
+            name = p.name
+            if name.endswith("_merged.pdf") or name.endswith("_ESA.pdf"):
+                continue
+            if not _is_pdf(p):
+                continue
+            key = str(p.resolve())
+        except Exception:
+            # Fall back to string key without resolve()
+            key = str(p)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(p)
+    return out
+
+
 def convert_to_pdf(input_path: Path) -> Optional[Path]:
     """
     Convert Office documents (PPTX, DOCX, etc.) to PDF.
@@ -151,29 +271,63 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
 
     output_path = input_path.with_suffix(".pdf")
 
+    # Quick sanity checks to avoid misleading "zip repair" spam.
+    if suffix in {".pptx", ".docx", ".xlsx"}:
+        if not _is_zip_container(input_path):
+            if _looks_like_html(input_path):
+                logger.warning(
+                    f"File does not look like a real {suffix} (looks like HTML). Likely an auth/redirect or server error: {input_path.name}"
+                )
+            else:
+                logger.warning(
+                    f"File does not look like a valid ZIP-based Office document: {input_path.name}"
+                )
+            return None
+
     # Method 1: Try soffice (LibreOffice) headless mode
-    soffice_paths = [
-        "/Applications/LibreOffice.app/Contents/MacOS/soffice",  # macOS
-        "/usr/bin/soffice",  # Linux
-        "/usr/bin/libreoffice",  # Linux alternative
-        shutil.which("soffice"),
-        shutil.which("libreoffice"),
-    ]
+    soffice_paths: List[str] = []
+    env_soffice = os.getenv("PDF_FETCHER_SOFFICE_PATH")
+    if env_soffice:
+        soffice_paths.append(env_soffice)
+    soffice_paths.extend(
+        [
+            shutil.which("soffice") or "",
+            shutil.which("libreoffice") or "",
+            "/Applications/LibreOffice.app/Contents/MacOS/soffice",  # macOS
+            "/usr/bin/soffice",  # Linux
+            "/usr/bin/libreoffice",  # Linux alternative
+        ]
+    )
+
+    # De-duplicate while preserving order
+    seen = set()
+    soffice_paths = [p for p in soffice_paths if p and not (p in seen or seen.add(p))]
 
     # Track whether LibreOffice was available and capture stderr for diagnostics
     libreoffice_tried = False
     last_soffice_error = None
 
     for soffice in soffice_paths:
-        if soffice and Path(soffice).exists() if isinstance(soffice, str) else soffice:
+        if not soffice:
+            continue
+        if not Path(soffice).exists():
+            continue
+        try:
+            logger.debug(f"Converting {input_path.name} to PDF using LibreOffice...")
+
+            # Use an isolated LO profile to prevent first-run dialogs and avoid profile locks.
+            lo_profile_dir = Path(tempfile.mkdtemp(prefix="goat_lo_profile_")).resolve()
+            lo_profile_url = lo_profile_dir.as_uri()
+
             try:
-                logger.debug(
-                    f"Converting {input_path.name} to PDF using LibreOffice..."
-                )
                 result = subprocess.run(
                     [
                         soffice,
                         "--headless",
+                        "--nologo",
+                        "--nofirststartwizard",
+                        "--norestore",
+                        f"-env:UserInstallation={lo_profile_url}",
                         "--convert-to",
                         "pdf",
                         "--outdir",
@@ -182,100 +336,159 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
                     ],
                     capture_output=True,
                     text=True,
-                    timeout=120,
+                    timeout=180,
+                )
+            finally:
+                try:
+                    shutil.rmtree(lo_profile_dir, ignore_errors=True)
+                except Exception:
+                    pass
+
+            # Mark that we attempted LibreOffice and capture any stderr for diagnostics
+            libreoffice_tried = True
+            try:
+                last_soffice_error = (result.stderr or "").strip()
+            except Exception:
+                last_soffice_error = None
+
+            if (
+                output_path.exists()
+                and output_path.stat().st_size > 0
+                and _is_pdf(output_path)
+            ):
+                logger.debug(f"✓ Converted to PDF: {output_path}")
+                return output_path
+            if output_path.exists() and (
+                output_path.stat().st_size == 0 or not _is_pdf(output_path)
+            ):
+                # Avoid future false positives.
+                try:
+                    output_path.unlink()
+                except Exception:
+                    pass
+
+            # Check if LibreOffice failed to load the file (corrupted zip)
+            stderr_lower = (result.stderr or "").lower()
+            if (
+                "source file could not be loaded" in stderr_lower
+                or "file format error" in stderr_lower
+            ):
+                logger.warning(
+                    "LibreOffice failed to load file, attempting zip repair..."
                 )
 
-                # Mark that we attempted LibreOffice and capture any stderr for diagnostics
-                libreoffice_tried = True
+                # Try to repair the file using zip -FF
+                repaired_path = (
+                    input_path.parent / f"{input_path.stem}_repaired{suffix}"
+                )
                 try:
-                    last_soffice_error = (result.stderr or "").strip()
-                except Exception:
-                    last_soffice_error = None
-
-                if output_path.exists():
-                    logger.debug(f"✓ Converted to PDF: {output_path}")
-                    # Optionally remove original
-                    # input_path.unlink()
-                    return output_path
-
-                # Check if LibreOffice failed to load the file (corrupted zip)
-                if (
-                    "source file could not be loaded" in result.stderr.lower()
-                    or "error" in result.stderr.lower()
-                ):
-                    logger.warning(
-                        f"LibreOffice failed to load file, attempting zip repair..."
+                    zip_exe = shutil.which("zip")
+                    if not zip_exe:
+                        logger.warning("zip tool not found; cannot attempt zip repair")
+                        continue
+                    repair_result = subprocess.run(
+                        [
+                            zip_exe,
+                            "-FF",
+                            str(input_path),
+                            "--out",
+                            str(repaired_path),
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
                     )
 
-                    # Try to repair the file using zip -FF
-                    repaired_path = (
-                        input_path.parent / f"{input_path.stem}_repaired{suffix}"
-                    )
-                    try:
-                        repair_result = subprocess.run(
-                            [
-                                "zip",
-                                "-FF",
-                                str(input_path),
-                                "--out",
-                                str(repaired_path),
-                            ],
-                            capture_output=True,
-                            text=True,
-                            timeout=60,
-                        )
+                    if (
+                        repaired_path.exists()
+                        and repaired_path.stat().st_size > 0
+                        and _is_zip_container(repaired_path)
+                    ):
+                        logger.debug(f"✓ Repaired corrupted file: {repaired_path.name}")
 
-                        if repaired_path.exists() and repaired_path.stat().st_size > 0:
-                            logger.debug(
-                                f"✓ Repaired corrupted file: {repaired_path.name}"
-                            )
-
-                            # Replace the corrupted original with the repaired version
-                            repaired_path.replace(input_path)
-
-                            # Try converting the repaired file (now has original name)
-                            logger.debug(f"Converting repaired file to PDF...")
+                        # Try converting the repaired file without mutating the original.
+                        logger.debug("Converting repaired file to PDF...")
+                        lo_profile_dir = Path(
+                            tempfile.mkdtemp(prefix="goat_lo_profile_")
+                        ).resolve()
+                        lo_profile_url = lo_profile_dir.as_uri()
+                        try:
                             retry_result = subprocess.run(
                                 [
                                     soffice,
                                     "--headless",
+                                    "--nologo",
+                                    "--nofirststartwizard",
+                                    "--norestore",
+                                    f"-env:UserInstallation={lo_profile_url}",
                                     "--convert-to",
                                     "pdf",
                                     "--outdir",
                                     str(input_path.parent),
-                                    str(input_path),
+                                    str(repaired_path),
                                 ],
                                 capture_output=True,
                                 text=True,
-                                timeout=120,
+                                timeout=180,
                             )
+                        finally:
+                            try:
+                                shutil.rmtree(lo_profile_dir, ignore_errors=True)
+                            except Exception:
+                                pass
 
-                            if output_path.exists():
+                        repaired_pdf = repaired_path.with_suffix(".pdf")
+                        if (
+                            repaired_pdf.exists()
+                            and repaired_pdf.stat().st_size > 0
+                            and _is_pdf(repaired_pdf)
+                        ):
+                            # Normalize final name to the original stem.
+                            try:
+                                repaired_pdf.replace(output_path)
+                            except Exception:
+                                pass
+                            if (
+                                output_path.exists()
+                                and output_path.stat().st_size > 0
+                                and _is_pdf(output_path)
+                            ):
                                 logger.debug(
                                     f"✓ Converted repaired file to PDF: {output_path}"
                                 )
+
+                                # Clean up repaired artifacts unless explicitly requested.
+                                if not _should_keep_repaired_artifacts():
+                                    try:
+                                        repaired_path.unlink(missing_ok=True)
+                                    except Exception:
+                                        pass
+                                    try:
+                                        repaired_pdf.unlink(missing_ok=True)
+                                    except Exception:
+                                        pass
                                 return output_path
-                            else:
-                                logger.warning(f"Failed to convert repaired file")
                         else:
-                            logger.warning(f"Zip repair failed or produced empty file")
-                    except (subprocess.TimeoutExpired, FileNotFoundError) as e:
-                        logger.debug(f"Zip repair failed: {e}")
-                        # Clean up if repair file was created
-                        if repaired_path.exists():
-                            repaired_path.unlink()
+                            logger.warning("Failed to convert repaired file")
+                    else:
+                        logger.warning("Zip repair failed or produced empty file")
+                except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+                    logger.debug(f"Zip repair failed: {e}")
+                    # Clean up if repair file was created
+                    if repaired_path.exists():
+                        repaired_path.unlink()
 
-            except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
-                # Record the exception for later diagnostics
-                try:
-                    last_soffice_error = str(e)
-                except Exception:
-                    last_soffice_error = None
-                logger.debug(f"LibreOffice conversion failed: {e}")
-                continue
+        except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+            # Record the exception for later diagnostics
+            try:
+                last_soffice_error = str(e)
+            except Exception:
+                last_soffice_error = None
+            logger.debug(f"LibreOffice conversion failed: {e}")
+            continue
 
-    # Method 2: Try macOS Keynote/Pages via osascript (for PPTX/DOCX)
-    if sys.platform == "darwin":
+    # Method 2 (optional): Try macOS Keynote/Pages via osascript (for PPTX/DOCX)
+    if sys.platform == "darwin" and _truthy_env("PDF_FETCHER_ALLOW_IWORK", default="0"):
         if suffix in [".pptx", ".ppt"]:
             try:
                 logger.debug(f"Converting {input_path.name} to PDF using Keynote...")
@@ -292,7 +505,11 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
                     text=True,
                     timeout=120,
                 )
-                if output_path.exists():
+                if (
+                    output_path.exists()
+                    and output_path.stat().st_size > 0
+                    and _is_pdf(output_path)
+                ):
                     logger.debug(f"✓ Converted to PDF: {output_path}")
                     return output_path
             except Exception as e:
@@ -314,7 +531,11 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
                     text=True,
                     timeout=120,
                 )
-                if output_path.exists():
+                if (
+                    output_path.exists()
+                    and output_path.stat().st_size > 0
+                    and _is_pdf(output_path)
+                ):
                     logger.debug(f"✓ Converted to PDF: {output_path}")
                     return output_path
             except Exception as e:
@@ -2015,10 +2236,57 @@ def batch_download_all(
         except Exception:
             pass
 
-        # Build a list of PDFs to merge: include existing PDFs and newly converted PDFs
-        pdf_files_only = [
+        # Ensure we didn't miss any PPTX->PDF conversions.
+        # This guarantees: for every Office source in the unit dir, a corresponding valid PDF exists
+        # or we explicitly report it as missing.
+        try:
+            total_sources, converted_sources, missing_sources = (
+                _validate_and_retry_office_conversions(unit_dir)
+            )
+        except Exception as e:
+            total_sources, converted_sources, missing_sources = (0, 0, [])
+            logger.warning(f"Conversion validation failed for unit '{unit_name}': {e}")
+
+        unit_summary["office_sources"] = total_sources
+        unit_summary["office_converted"] = converted_sources
+        unit_summary["office_missing"] = missing_sources
+
+        if total_sources:
+            if missing_sources:
+                logger.error(
+                    f"Missing PDF conversions in {unit_dir.name}: {len(missing_sources)}/{total_sources} source file(s) still have no PDF"
+                )
+                for name in missing_sources:
+                    logger.error(f"  Missing PDF for: {name}")
+                print(
+                    f"  {Fore.YELLOW}Office conversion:{Style.RESET_ALL} {converted_sources}/{total_sources} (missing {len(missing_sources)})"
+                )
+            else:
+                print(
+                    f"  {Fore.GREEN}Office conversion:{Style.RESET_ALL} {converted_sources}/{total_sources}"
+                )
+
+        # Build a list of PDFs to merge: include existing PDFs, newly converted PDFs, and any PDFs
+        # produced by the post-validation retry pass above. Then de-duplicate and validate.
+        candidate_pdfs = [
             f for f in unit_pdfs if f.suffix.lower() == ".pdf"
         ] + converted_pdfs
+
+        # Add any PDFs that exist on disk for Office sources (covers retry conversions)
+        office_pdf_candidates: List[Path] = []
+        try:
+            for src in _list_office_sources(unit_dir):
+                office_pdf_candidates.append(src.with_suffix(".pdf"))
+        except Exception:
+            office_pdf_candidates = []
+
+        candidate_pdfs.extend(office_pdf_candidates)
+        pdf_files_only = _unique_existing_pdfs(candidate_pdfs)
+
+        # Helpful breakdown to explain "Conversion X/Y" vs "Merging N PDFs"
+        converted_office_pdfs = _unique_existing_pdfs(office_pdf_candidates)
+        converted_office_count = len(converted_office_pdfs)
+        non_office_pdf_count = max(0, len(pdf_files_only) - converted_office_count)
 
         # Sort PDFs by filename to ensure correct order (01_, 02_, etc.)
         pdf_files_only.sort(key=lambda x: x.name)
@@ -2026,7 +2294,7 @@ def batch_download_all(
         # Merge PDFs for this unit (non-PDF files will be skipped) unless --no-merge flag is set
         if pdf_files_only and not skip_merge:
             print(
-                f"  {Fore.BLUE}Merging {len(pdf_files_only)} PDFs...{Style.RESET_ALL} ",
+                f"  {Fore.BLUE}Merging {len(pdf_files_only)} PDFs{Style.RESET_ALL} ({converted_office_count} converted + {non_office_pdf_count} already-PDF)... ",
                 end="",
                 flush=True,
             )

@@ -22,9 +22,25 @@ Automatically download course materials (slides, PDFs) from PESU Academy.
 # Install fzf (required for fuzzy search)
 brew install fzf
 
+# Install LibreOffice (recommended for PPTX/DOCX/XLSX -> PDF conversion)
+# Download from https://www.libreoffice.org/ or via Homebrew cask:
+# brew install --cask libreoffice
+
 # Install dependencies
 uv sync
 ```
+
+### Conversion notes (macOS)
+
+- This project uses LibreOffice `soffice` in headless mode for Office→PDF conversion.
+- GUI fallbacks (Keynote/Pages via AppleScript) are disabled by default to prevent macOS from popping apps during batch runs.
+
+Optional env vars:
+
+- `PDF_FETCHER_SOFFICE_PATH` — set an explicit path to `soffice` (useful on macOS), e.g.
+  - `/Applications/LibreOffice.app/Contents/MacOS/soffice`
+- `PDF_FETCHER_ALLOW_IWORK=1` — enable Keynote/Pages fallback conversion (will open GUI apps).
+- `PDF_FETCHER_KEEP_REPAIRED=1` — keep `*_repaired.pptx` artifacts created by zip repair (default: delete after successful conversion).
 
 ## Usage
 

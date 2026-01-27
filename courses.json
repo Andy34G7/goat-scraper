@@ -67206,88 +67206,88 @@
   },
   {
     "id": "18741",
-    "subjectCode": "GT24AM0101",
-    "subjectName": "GT24AM0101-P-Electrical Engineering"
+    "subjectCode": "M0101",
+    "subjectName": "M0101-P-Electrical Engineering"
   },
   {
     "id": "18742",
-    "subjectCode": "GT24AM0102",
-    "subjectName": "GT24AM0102-P-Engineering Drawing and Graphics"
+    "subjectCode": "M0102",
+    "subjectName": "M0102-P-Engineering Drawing and Graphics"
   },
   {
     "id": "18743",
-    "subjectCode": "GT24AM0103",
-    "subjectName": "GT24AM0103-P-Hydraulics Engineering"
+    "subjectCode": "M0103",
+    "subjectName": "M0103-P-Hydraulics Engineering"
   },
   {
     "id": "18744",
-    "subjectCode": "GT24AM0104",
-    "subjectName": "GT24AM0104-P-Pneumatic Engineering"
+    "subjectCode": "M0104",
+    "subjectName": "M0104-P-Pneumatic Engineering"
   },
   {
     "id": "18745",
-    "subjectCode": "GT24AM0105",
-    "subjectName": "GT24AM0105-P-Sensors and Measurements"
+    "subjectCode": "M0105",
+    "subjectName": "M0105-P-Sensors and Measurements"
   },
   {
     "id": "18746",
-    "subjectCode": "GT24AM0106",
-    "subjectName": "GT24AM0106-TPM"
+    "subjectCode": "M0106",
+    "subjectName": "M0106-TPM"
   },
   {
     "id": "18747",
-    "subjectCode": "GT24AM0201",
-    "subjectName": "GT24AM0201-PLC/CNC/HMI"
+    "subjectCode": "M0201",
+    "subjectName": "M0201-PLC/CNC/HMI"
   },
   {
     "id": "18748",
-    "subjectCode": "GT24AM0202",
-    "subjectName": "GT24AM0202-Servo Motor & Drive"
+    "subjectCode": "M0202",
+    "subjectName": "M0202-Servo Motor & Drive"
   },
   {
     "id": "18749",
-    "subjectCode": "GT24AM0203",
-    "subjectName": "GT24AM0203-Industrial Sensors"
+    "subjectCode": "M0203",
+    "subjectName": "M0203-Industrial Sensors"
   },
   {
     "id": "18750",
-    "subjectCode": "GT24AM0204",
-    "subjectName": "GT24AM0204-Process Control Systems"
+    "subjectCode": "M0204",
+    "subjectName": "M0204-Process Control Systems"
   },
   {
     "id": "18751",
-    "subjectCode": "GT24AM0205",
-    "subjectName": "GT24AM0205-Digital Communications"
+    "subjectCode": "M0205",
+    "subjectName": "M0205-Digital Communications"
   },
   {
     "id": "18752",
-    "subjectCode": "GT24AM0206",
-    "subjectName": "GT24AM0206-Industrial Instrumentation"
+    "subjectCode": "M0206",
+    "subjectName": "M0206-Industrial Instrumentation"
   },
   {
     "id": "18753",
-    "subjectCode": "GT24AM0301",
-    "subjectName": "GT24AM0301-Automation"
+    "subjectCode": "M0301",
+    "subjectName": "M0301-Automation"
   },
   {
     "id": "18754",
-    "subjectCode": "GT24AM0302",
-    "subjectName": "GT24AM0302-Robotics"
+    "subjectCode": "M0302",
+    "subjectName": "M0302-Robotics"
   },
   {
     "id": "18755",
-    "subjectCode": "GT24AM0401",
-    "subjectName": "GT24AM0401-Introduction to Industry 4.0 & IIOT"
+    "subjectCode": "M0401",
+    "subjectName": "M0401-Introduction to Industry 4.0 & IIOT"
   },
   {
     "id": "18756",
-    "subjectCode": "GT24AM0402",
-    "subjectName": "GT24AM0402-Artificial Intelligence"
+    "subjectCode": "M0402",
+    "subjectName": "M0402-Artificial Intelligence"
   },
   {
     "id": "18757",
-    "subjectCode": "GT24AM0403",
-    "subjectName": "GT24AM0403-Machine Learning"
+    "subjectCode": "M0403",
+    "subjectName": "M0403-Machine Learning"
   },
   {
     "id": "18758",
@@ -67316,28 +67316,28 @@
   },
   {
     "id": "18763",
-    "subjectCode": "GT24AM0105",
-    "subjectName": "GT24AM0105-Sensors and Measurements"
+    "subjectCode": "M0105",
+    "subjectName": "M0105-Sensors and Measurements"
   },
   {
     "id": "18764",
-    "subjectCode": "GT24AM0104",
-    "subjectName": "GT24AM0104-Pneumatic Engineering"
+    "subjectCode": "M0104",
+    "subjectName": "M0104-Pneumatic Engineering"
   },
   {
     "id": "18765",
-    "subjectCode": "GT24AM0103",
-    "subjectName": "GT24AM0103-Hydraulics Engineering"
+    "subjectCode": "M0103",
+    "subjectName": "M0103-Hydraulics Engineering"
   },
   {
     "id": "18766",
-    "subjectCode": "GT24AM0102",
-    "subjectName": "GT24AM0102-Engineering Drawing and Graphics"
+    "subjectCode": "M0102",
+    "subjectName": "M0102-Engineering Drawing and Graphics"
   },
   {
     "id": "18767",
-    "subjectCode": "GT24AM0101",
-    "subjectName": "GT24AM0101-Electrical Engineering"
+    "subjectCode": "M0101",
+    "subjectName": "M0101-Electrical Engineering"
   },
   {
     "id": "18768",
@@ -70341,33 +70341,33 @@
   },
   {
     "id": "19368",
-    "subjectCode": "GT24AM0201",
-    "subjectName": "GT24AM0201-P-PLC/CNC/HMI"
+    "subjectCode": "M0201",
+    "subjectName": "M0201-P-PLC/CNC/HMI"
   },
   {
     "id": "19369",
-    "subjectCode": "GT24AM0202",
-    "subjectName": "GT24AM0202-P-Servo Motor & Drive"
+    "subjectCode": "M0202",
+    "subjectName": "M0202-P-Servo Motor & Drive"
   },
   {
     "id": "19370",
-    "subjectCode": "GT24AM0203",
-    "subjectName": "GT24AM0203-P-Industrial Sensors"
+    "subjectCode": "M0203",
+    "subjectName": "M0203-P-Industrial Sensors"
   },
   {
     "id": "19371",
-    "subjectCode": "GT24AM0204",
-    "subjectName": "GT24AM0204-P-Process Control Systems"
+    "subjectCode": "M0204",
+    "subjectName": "M0204-P-Process Control Systems"
   },
   {
     "id": "19372",
-    "subjectCode": "GT24AM0205",
-    "subjectName": "GT24AM0205-P-Digital Communications"
+    "subjectCode": "M0205",
+    "subjectName": "M0205-P-Digital Communications"
   },
   {
     "id": "19373",
-    "subjectCode": "GT24AM0206",
-    "subjectName": "GT24AM0206-P-Industrial Instrumentation"
+    "subjectCode": "M0206",
+    "subjectName": "M0206-P-Industrial Instrumentation"
   },
   {
     "id": "19374",
@@ -71451,8 +71451,8 @@
   },
   {
     "id": "19590",
-    "subjectCode": "GT24AM0401",
-    "subjectName": "GT24AM0401-P-Introduction to Industry 4.0 & IIOT"
+    "subjectCode": "M0401",
+    "subjectName": "M0401-P-Introduction to Industry 4.0 & IIOT"
   },
   {
     "id": "19591",
@@ -71461,8 +71461,8 @@
   },
   {
     "id": "19592",
-    "subjectCode": "GT24AM0403",
-    "subjectName": "GT24AM0403-P-Machine Learning"
+    "subjectCode": "M0403",
+    "subjectName": "M0403-P-Machine Learning"
   },
   {
     "id": "19593",
@@ -72101,13 +72101,13 @@
   },
   {
     "id": "19720",
-    "subjectCode": "GT24AM0302P",
-    "subjectName": "GT24AM0302P-Robotics"
+    "subjectCode": "M0302P",
+    "subjectName": "M0302P-Robotics"
   },
   {
     "id": "19721",
-    "subjectCode": "GT24AM0301P",
-    "subjectName": "GT24AM0301P-Automation"
+    "subjectCode": "M0301P",
+    "subjectName": "M0301P-Automation"
   },
   {
     "id": "19722",
@@ -76797,7 +76797,7 @@
   {
     "id": "20659",
     "subjectCode": "UB25PY656A",
-    "subjectName": "UB25PY656A-Assessments in Behavioural Sciences (Lab)"
+    "subjectName": "UB25PY656A-Assessments in Behavioural Sciences"
   },
   {
     "id": "20660",
@@ -76837,7 +76837,7 @@
   {
     "id": "20667",
     "subjectCode": "UB24PY751AB1",
-    "subjectName": "UB24PY751AB1-Counselling across the Life Span"
+    "subjectName": "UB24PY751AB1-Counselling Across the Life Span (Co)"
   },
   {
     "id": "20668",
@@ -78092,7 +78092,7 @@
   {
     "id": "20918",
     "subjectCode": "UM23BC34AB3",
-    "subjectName": "UM23BC34AB3-Securities and Portflio Managment"
+    "subjectName": "UM23BC34AB3-Securities and Portfolio Management"
   },
   {
     "id": "20919",
@@ -79172,22 +79172,22 @@
   {
     "id": "21134",
     "subjectCode": "UA25FA191A",
-    "subjectName": "UA25FA191A-Basic Design I"
+    "subjectName": "UA25FA191A-Basic Design - I"
   },
   {
     "id": "21135",
     "subjectCode": "UA25FA141A",
-    "subjectName": "UA25FA141A-BCTM - I"
+    "subjectName": "UA25FA141A-Building Construction Technology & Materials - I"
   },
   {
     "id": "21136",
     "subjectCode": "UA25FA131A",
-    "subjectName": "UA25FA131A-Graphics & Drawing I"
+    "subjectName": "UA25FA131A-Graphics & Drawing - I"
   },
   {
     "id": "21137",
     "subjectCode": "UA25FA132A",
-    "subjectName": "UA25FA132A-History of Architecture I"
+    "subjectName": "UA25FA132A-History of Architecture - I"
   },
   {
     "id": "21138",
@@ -79897,7 +79897,7 @@
   {
     "id": "21279",
     "subjectCode": "UQ24CA741A",
-    "subjectName": "UQ24CA741A-Project Work Phase 1"
+    "subjectName": "UQ24CA741A-Project Work Phase - I"
   },
   {
     "id": "21280",
@@ -80182,7 +80182,7 @@
   {
     "id": "21336",
     "subjectCode": "UE24CS7A1A",
-    "subjectName": "UE24CS7A1A-Project Work Phase I"
+    "subjectName": "UE24CS7A1A-Project Work Phase - I"
   },
   {
     "id": "21337",
@@ -81512,7 +81512,7 @@
   {
     "id": "21602",
     "subjectCode": "UM23BB361B",
-    "subjectName": "UM23BB361B-Capstone Project"
+    "subjectName": "UM23BB361B-Project Work"
   },
   {
     "id": "21603",
@@ -81537,7 +81537,7 @@
   {
     "id": "21607",
     "subjectCode": "UM23BB381B",
-    "subjectName": "UM23BB381B-Dissertation-Project"
+    "subjectName": "UM23BB381B-Project Work"
   },
   {
     "id": "21608",
@@ -82776,8 +82776,8 @@
   },
   {
     "id": "21855",
-    "subjectCode": "UR22PA461B",
-    "subjectName": "UR22PA461B-Internship"
+    "subjectCode": "UR22PA462B",
+    "subjectName": "UR22PA462B-Internship"
   },
   {
     "id": "21856",
@@ -83823,5 +83823,25 @@
     "id": "22064",
     "subjectCode": "UE24EC7A1A",
     "subjectName": "UE24EC7A1A-Project Work Phase - I"
+  },
+  {
+    "id": "22065",
+    "subjectCode": "UZ24UZ001B",
+    "subjectName": "UZ24UZ001B-VentureSpark"
+  },
+  {
+    "id": "22066",
+    "subjectCode": "UM23BN361B",
+    "subjectName": "UM23BN361B-Capstone Project"
+  },
+  {
+    "id": "22067",
+    "subjectCode": "UH25MB101T",
+    "subjectName": "UH25MB101T-Anatomy - Theory"
+  },
+  {
+    "id": "22068",
+    "subjectCode": "UH24MB202T",
+    "subjectName": "UH24MB202T-Pathology - Theory"
   }
 ]
