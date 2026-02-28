@@ -26,7 +26,7 @@ import {
   File,
   Plus,
   Check,
-  
+
 } from "lucide-react";
 
 interface CourseContentProps {
@@ -61,11 +61,11 @@ function isPDF(filename: string): boolean {
 function getPrimaryFilename(cls: any): string | null {
   if (cls.filename) return cls.filename;
   if (!cls.files || !Array.isArray(cls.files) || cls.files.length === 0) return null;
-  
+
   // Prefer PDF if it exists in the files list
   const pdfFile = cls.files.find((f: any) => f.filename && isPDF(f.filename));
   if (pdfFile) return pdfFile.filename;
-  
+
   // Fall back to the first available file
   return cls.files[0].filename || null;
 }
@@ -76,7 +76,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
   const { progress } = useProgress();
   const fileRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [openUnits, setOpenUnits] = useState<string[]>(["unit-1"]);
-  
+
   // WebSocket sync and leaderboard is handled by `CourseOverview` component
 
   // Generate all file keys for progress tracking
@@ -269,21 +269,31 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
 
                           return (
                             <div
-                                          ref={(el) => { fileRowRefs.current[fileKey] = el; }}
+                              ref={(el) => { fileRowRefs.current[fileKey] = el; }}
                               role="button"
                               tabIndex={0}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  if (canPreview && filePath) {
+                                    handleAddToCart(filePath, file.class_name, unit.unit_number, courseId, fileKey);
+                                  } else {
+                                    toggleFileComplete(courseId, fileKey);
+                                  }
+                                }
+                              }}
+                              onClick={() => {
+                                if (canPreview && filePath) {
+                                  handleAddToCart(filePath, file.class_name, unit.unit_number, courseId, fileKey);
+                                } else {
                                   toggleFileComplete(courseId, fileKey);
                                 }
                               }}
-                              onClick={() => toggleFileComplete(courseId, fileKey)}
                               key={idx}
-                              className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
-                                isComplete
+                              className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${isComplete
                                   ? "bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30"
                                   : "bg-slate-100/80 dark:bg-slate-800/40 hover:bg-slate-200/80 dark:hover:bg-slate-700/50 border border-transparent hover:border-slate-300 dark:hover:border-slate-600"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-3 min-w-0">
                                 {primaryFilename && file.status === "success" && (
@@ -304,9 +314,8 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
                                 {primaryFilename && getFileIcon(primaryFilename)}
                                 <div className="min-w-0">
                                   <p
-                                    className={`font-medium text-sm truncate ${
-                                      isComplete ? "text-green-700 dark:text-green-400" : ""
-                                    }`}
+                                    className={`font-medium text-sm truncate ${isComplete ? "text-green-700 dark:text-green-400" : ""
+                                      }`}
                                   >
                                     {primaryFilename || file.class_name}
                                   </p>
@@ -338,7 +347,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
                                       </Button>
                                     );
                                   })()}
-                                  
+
                                 </div>
                               ) : (
                                 <Badge variant="destructive">Failed</Badge>

@@ -77,7 +77,7 @@ export default async function CoursePage({ params }: Props) {
 
       {/* Back Button */}
       <div className="container mx-auto px-6 pt-6">
-        <Link href="/">
+        <Link href="/courses">
           <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Courses

@@ -46,11 +46,10 @@ export function PDFViewer({ tabs, activeTabId, onTabChange, onTabClose, onClose 
             {tabs.map((tab) => (
               <div
                 key={tab.id}
-                className={`group flex items-center gap-2 px-3 py-2 border-r border-slate-200 dark:border-slate-700 cursor-pointer min-w-0 max-w-[200px] ${
-                  tab.id === activeTab.id
-                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                    : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
-                }`}
+                className={`group flex items-center gap-2 px-3 py-2 border-r border-slate-200 dark:border-slate-700 cursor-pointer min-w-0 max-w-[200px] ${tab.id === activeTab.id
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  }`}
                 onClick={() => onTabChange(tab.id)}
               >
                 <FileText className="h-3.5 w-3.5 shrink-0 text-red-500" />
@@ -110,18 +109,20 @@ export function PDFViewer({ tabs, activeTabId, onTabChange, onTabClose, onClose 
       </div>
 
       {/* PDF Content */}
-      <div className="flex-1 overflow-auto bg-slate-200 dark:bg-slate-950">
-        <iframe
-          src={`${activeTab.url}#toolbar=0&navpanes=0&view=FitH`}
-          className="w-full h-full border-0"
+      <div className="flex-1 overflow-x-auto overflow-y-hidden bg-slate-200 dark:bg-slate-950">
+        <div
+          className="h-full relative transition-[width] duration-200 ease-out"
           style={{
-            transform: `scale(${scale / 100})`,
-            transformOrigin: "top left",
-            width: `${100 / (scale / 100)}%`,
-            height: `${100 / (scale / 100)}%`,
+            width: `${scale}%`,
+            margin: scale <= 100 ? '0 auto' : '0'
           }}
-          title={activeTab.title}
-        />
+        >
+          <iframe
+            src={`${activeTab.url}#toolbar=0&navpanes=0&view=FitH`}
+            className="w-full h-full border-0 bg-white"
+            title={activeTab.title}
+          />
+        </div>
       </div>
     </div>
   );

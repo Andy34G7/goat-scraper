@@ -38,14 +38,14 @@ export function CommandPalette({ items }: CommandPaletteProps) {
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
       }
     };
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    document.addEventListener("keydown", down, true);
+    return () => document.removeEventListener("keydown", down, true);
   }, []);
 
   const handleSelect = (item: SearchItem) => {
@@ -90,7 +90,7 @@ export function CommandPalette({ items }: CommandPaletteProps) {
         <CommandInput placeholder="Search courses, units, files..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          
+
           <CommandGroup heading="Navigation">
             <CommandItem onSelect={() => { setOpen(false); router.push("/"); }}>
               <Home className="mr-2 h-4 w-4" />
