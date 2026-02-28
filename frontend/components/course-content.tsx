@@ -58,6 +58,18 @@ function isPDF(filename: string): boolean {
   return filename.toLowerCase().endsWith(".pdf");
 }
 
+function getPrimaryFilename(cls: any): string | null {
+  if (cls.filename) return cls.filename;
+  if (!cls.files || !Array.isArray(cls.files) || cls.files.length === 0) return null;
+  
+  // Prefer PDF if it exists in the files list
+  const pdfFile = cls.files.find((f: any) => f.filename && isPDF(f.filename));
+  if (pdfFile) return pdfFile.filename;
+  
+  // Fall back to the first available file
+  return cls.files[0].filename || null;
+}
+
 export function CourseContent({ summary, basePath, courseId }: CourseContentProps) {
   const { toggleFileComplete, isFileComplete, toggleUnitComplete, getUnitProgress, getCourseProgress } = useProgress();
   const { addItem, removeItem, isInCart } = useStudyCart();
@@ -71,7 +83,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
   const allFileKeys: string[] = [];
   summary.units.forEach((unit) => {
     unit.classes.forEach((cls) => {
-      const primaryFilename = (cls as any).filename ?? (cls as any).files?.[0]?.filename ?? null;
+      const primaryFilename = getPrimaryFilename(cls);
       if (primaryFilename && cls.status === "success") {
         allFileKeys.push(`${unit.unit_number}-${cls.class_id}`);
       }
@@ -86,7 +98,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
     let lastCompletedKey: string | null = null;
     summary.units.forEach((unit) => {
       unit.classes.forEach((cls) => {
-        const primaryFilename = (cls as any).filename ?? (cls as any).files?.[0]?.filename ?? null;
+        const primaryFilename = getPrimaryFilename(cls);
         const key = `${unit.unit_number}-${cls.class_id}`;
         if (primaryFilename && progress[courseId]?.[key]) {
           lastCompletedKey = key;
@@ -152,7 +164,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
             {summary.units.map((unit) => {
               const unitFileKeys = unit.classes
                 .filter((cls) => {
-                  const primaryFilename = (cls as any).filename ?? (cls as any).files?.[0]?.filename ?? null;
+                  const primaryFilename = getPrimaryFilename(cls);
                   return primaryFilename && cls.status === "success";
                 })
                 .map((cls) => `${unit.unit_number}-${cls.class_id}`);
@@ -229,7 +241,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
                             e.stopPropagation();
                             // Always add individual slides/files from the unit (not the merged PDF)
                             unit.classes.forEach((cls) => {
-                              const primaryFilename = (cls as any).filename ?? (cls as any).files?.[0]?.filename ?? null;
+                              const primaryFilename = getPrimaryFilename(cls);
                               if (primaryFilename && cls.status === "success") {
                                 const filePath = `${basePath}/${unit.unit_directory}/${primaryFilename}`;
                                 const fileKey = `${unit.unit_number}-${cls.class_id}`;
@@ -249,7 +261,7 @@ export function CourseContent({ summary, basePath, courseId }: CourseContentProp
                         unit.classes.map((file: ClassInfo, idx: number) => {
                           const fileKey = `${unit.unit_number}-${file.class_id}`;
                           const isComplete = isFileComplete(courseId, fileKey);
-                          const primaryFilename = (file as any).filename ?? (file as any).files?.[0]?.filename ?? null;
+                          const primaryFilename = getPrimaryFilename(file);
                           const filePath = primaryFilename
                             ? `${basePath}/${unit.unit_directory}/${primaryFilename}`
                             : null;

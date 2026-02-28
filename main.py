@@ -29,6 +29,8 @@ from colorama import Fore, Style, init as colorama_init
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from spire.presentation import Presentation, FileFormat
+
 # Initialize colorama for cross-platform colored output
 colorama_init(autoreset=True)
 
@@ -284,7 +286,78 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
                 )
             return None
 
-    # Method 1: Try soffice (LibreOffice) headless mode
+    # Method 1 (Preferred for PPTX/PPT): Spire.Presentation
+    if suffix in {".pptx", ".ppt"}:
+        try:
+            logger.debug(f"Converting {input_path.name} to PDF using Spire.Presentation...")
+            presentation = Presentation()
+            presentation.LoadFromFile(str(input_path))
+            presentation.SaveToFile(str(output_path), FileFormat.PDF)
+            presentation.Dispose()
+            
+            if (
+                output_path.exists()
+                and output_path.stat().st_size > 0
+                and _is_pdf(output_path)
+            ):
+                logger.debug(f"✓ Converted to PDF using Spire: {output_path}")
+                return output_path
+            else:
+                logger.warning("Spire.Presentation failed to produce a valid PDF. Falling back...")
+        except Exception as e:
+            logger.warning(f"Spire.Presentation failed to load {input_path.name}. Attempting zip repair...")
+            
+            # Try zip repair for Spire
+            repaired_path = input_path.parent / f"{input_path.stem}_repaired{suffix}"
+            try:
+                zip_exe = shutil.which("zip")
+                if zip_exe:
+                    subprocess.run(
+                        [zip_exe, "-FF", str(input_path), "--out", str(repaired_path)],
+                        input="y\n",
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
+                    )
+                    if (
+                        repaired_path.exists()
+                        and repaired_path.stat().st_size > 0
+                        and _is_zip_container(repaired_path)
+                    ):
+                        logger.warning(f"✓ Repaired corrupted file: {repaired_path.name}, attempting Spire again...")
+                        try:
+                            presentation = Presentation()
+                            presentation.LoadFromFile(str(repaired_path))
+                            presentation.SaveToFile(str(output_path), FileFormat.PDF)
+                            presentation.Dispose()
+                            
+                            if (
+                                output_path.exists()
+                                and output_path.stat().st_size > 0
+                                and _is_pdf(output_path)
+                            ):
+                                logger.debug(f"✓ Converted repaired file to PDF using Spire: {output_path}")
+                                if not _should_keep_repaired_artifacts():
+                                    try: repaired_path.unlink()
+                                    except: pass
+                                return output_path
+                        except Exception as e2:
+                            logger.warning(f"Spire failed to load repaired file: {e2}")
+                        
+                        if not _should_keep_repaired_artifacts():
+                            try: repaired_path.unlink()
+                            except: pass
+                    else:
+                        logger.warning("Spire zip repair failed or produced empty file.")
+            except Exception as zipe:
+                logger.debug(f"Zip repair exception for Spire: {zipe}")
+                if repaired_path.exists():
+                    try: repaired_path.unlink()
+                    except: pass
+            
+            logger.debug(f"Spire.Presentation fallback failed for {input_path.name}. Falling back...")
+
+    # Method 2: Try soffice (LibreOffice) headless mode
     soffice_paths: List[str] = []
     env_soffice = os.getenv("PDF_FETCHER_SOFFICE_PATH")
     if env_soffice:
@@ -394,6 +467,7 @@ def convert_to_pdf(input_path: Path) -> Optional[Path]:
                             "--out",
                             str(repaired_path),
                         ],
+                        input="y\n",
                         capture_output=True,
                         text=True,
                         timeout=60,

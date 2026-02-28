@@ -10,6 +10,20 @@ import { useProgressSync } from "@/components/use-progress-sync";
 import { Leaderboard } from "@/components/leaderboard";
 import { CourseSummary } from "@/types/course";
 
+function isPDF(filename: string): boolean {
+  return filename.toLowerCase().endsWith(".pdf");
+}
+
+function getPrimaryFilename(cls: any): string | null {
+  if (cls.filename) return cls.filename;
+  if (!cls.files || !Array.isArray(cls.files) || cls.files.length === 0) return null;
+
+  const pdfFile = cls.files.find((f: any) => f.filename && isPDF(f.filename));
+  if (pdfFile) return pdfFile.filename;
+
+  return cls.files[0].filename || null;
+}
+
 interface CourseOverviewProps {
   summary: CourseSummary;
   basePath: string;
@@ -32,7 +46,7 @@ export default function CourseOverview({ summary, basePath, courseId, showProgre
   const allFileKeys: string[] = [];
   summary.units.forEach((unit) => {
     unit.classes.forEach((cls) => {
-      const primaryFilename = (cls as any).filename ?? (cls as any).files?.[0]?.filename ?? null;
+      const primaryFilename = getPrimaryFilename(cls);
       if (primaryFilename && cls.status === "success") {
         allFileKeys.push(`${unit.unit_number}-${cls.class_id}`);
       }
@@ -65,7 +79,7 @@ export default function CourseOverview({ summary, basePath, courseId, showProgre
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
               {summary.units.map((unit) => {
                 const unitFileKeys = unit.classes
-                  .filter((cls) => cls.filename && cls.status === "success")
+                  .filter((cls) => getPrimaryFilename(cls) && cls.status === "success")
                   .map((cls) => `${unit.unit_number}-${cls.class_id}`);
                 const unitProgress = getUnitProgress(
                   courseId,
