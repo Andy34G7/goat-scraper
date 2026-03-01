@@ -129,7 +129,8 @@ def interactive_mode(
                         base_dir_env = output_dir or os.getenv(
                             "BASE_DIR", "frontend/public/courses"
                         )
-                        base_dir = Path(__file__).parent / base_dir_env
+                        # Go up two levels: scraper/cli.py -> scraper -> goat-scraper
+                        base_dir = Path(__file__).parent.parent / base_dir_env
                         base_dir.mkdir(parents=True, exist_ok=True)
                         course_dir = (
                             base_dir / f"course{course_id}_{subject_code}-{safe_name}"
@@ -295,7 +296,8 @@ def interactive_mode(
 
         # Load base directory from environment variable or use default
         base_dir_env = output_dir or os.getenv("BASE_DIR", "frontend/public/courses")
-        base_dir = Path(__file__).parent / base_dir_env
+        # Go up two levels: scraper/cli.py -> scraper -> goat-scraper
+        base_dir = Path(__file__).parent.parent / base_dir_env
         base_dir.mkdir(parents=True, exist_ok=True)
         course_dir = base_dir / f"course{course_id}_{subject_code}-{safe_name}"
         course_dir.mkdir(exist_ok=True)
@@ -561,7 +563,7 @@ Examples:
 
         load_dotenv()
         base_dir_env = os.getenv("BASE_DIR", "frontend/public/courses")
-        base_dir = Path(__file__).parent / base_dir_env
+        base_dir = Path(__file__).parent.parent / base_dir_env
         if base_dir.exists():
             update_courses_index(base_dir)
             print(f"✓ Updated index.json in {base_dir}")
