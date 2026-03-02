@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LofiPlayer } from "@/components/lofi-player";
+import dynamic from "next/dynamic";
+
+const AiAssistantSidebar = dynamic(
+  () => import("@/components/ai-assistant-sidebar").then((mod) => mod.AiAssistantSidebar),
+  { ssr: false }
+);
 import {
   ArrowLeft,
   BookOpen,
@@ -24,6 +30,7 @@ import {
   X as XIcon,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useProgress } from "@/components/progress-provider";
@@ -37,24 +44,25 @@ export default function StudyPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [scale, setScale] = useState(100);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [collapsedUnits, setCollapsedUnits] = useState<Record<number, boolean>>({});
 
   const toggleUnit = (unitNum: number) => {
     setCollapsedUnits((prev) => ({ ...prev, [unitNum]: !prev[unitNum] }));
   };
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  
+
   // Brainrot mode only available with PRO=true in .env
   const isPro = process.env.NEXT_PUBLIC_PRO === "true";
   const [showSubwaySurfer, setShowSubwaySurfer] = useState(isPro);
 
   // Get the current course ID from active item
   const currentCourseId = items[activeIndex]?.courseId || "global";
-  
+
   // WebSocket sync and leaderboard - must be called before any early returns
   // Full progress sync happens automatically on connect, reconnect, and periodically
   const { leaderboard, username, isConnected, requestLeaderboardUpdate } = useProgressSync(currentCourseId);
-  
+
   // Get current user ID
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -134,119 +142,116 @@ export default function StudyPage() {
   }
 
   return (
-    <div className="h-screen flex bg-slate-100 dark:bg-slate-950">
+    <div className="flex flex-row relative h-screen w-full bg-slate-100 dark:bg-slate-950 overflow-hidden">
       {/* Sidebar */}
-      <div
-        className={`${
-          sidebarCollapsed ? "w-0" : "w-72"
-        } transition-all duration-300 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/courses">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Courses
+      {!sidebarCollapsed && (
+        <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-full flex flex-col shrink-0 overflow-hidden min-h-0">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/courses">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Courses
+                </Button>
+              </Link>
+              <ThemeToggle />
+            </div>
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-slate-900 dark:text-white">Study Queue</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-slate-500 hover:text-red-500"
+                onClick={clearCart}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Clear
               </Button>
-            </Link>
-            <ThemeToggle />
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900 dark:text-white">Study Queue</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs text-slate-500 hover:text-red-500"
-              onClick={clearCart}
-            >
-              <Trash2 className="h-3 w-3 mr-1" />
-              Clear
-            </Button>
-          </div>
-        </div>
 
-        {/* PDF List */}
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-2">
-            {groupedItems.map(({ unitNum, unitComplete, items: unitItems }) => {
-              const isCollapsed = !!collapsedUnits[unitNum];
-              return (
-                <div key={`unit-${unitNum}`}>
-                  <button
-                    onClick={() => toggleUnit(unitNum)}
-                    className="w-full text-left px-2 py-2 text-xs text-slate-400 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md"
-                    aria-expanded={!isCollapsed}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span>Unit {unitNum}</span>
-                    </span>
-                    <span className="flex items-center gap-2">
-                      {unitComplete && <Badge variant="secondary">Unit Complete</Badge>}
-                      {isCollapsed ? (
-                        <ChevronDown className="h-4 w-4 text-slate-400" />
-                      ) : (
-                        <ChevronUp className="h-4 w-4 text-slate-400" />
-                      )}
-                    </span>
-                  </button>
+          {/* PDF List */}
+          <ScrollArea className="flex-1">
+            <div className="p-2 space-y-2">
+              {groupedItems.map(({ unitNum, unitComplete, items: unitItems }) => {
+                const isCollapsed = !!collapsedUnits[unitNum];
+                return (
+                  <div key={`unit-${unitNum}`}>
+                    <button
+                      onClick={() => toggleUnit(unitNum)}
+                      className="w-full text-left px-2 py-2 text-xs text-slate-400 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md"
+                      aria-expanded={!isCollapsed}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>Unit {unitNum}</span>
+                      </span>
+                      <span className="flex items-center gap-2">
+                        {unitComplete && <Badge variant="secondary">Unit Complete</Badge>}
+                        {isCollapsed ? (
+                          <ChevronDown className="h-4 w-4 text-slate-400" />
+                        ) : (
+                          <ChevronUp className="h-4 w-4 text-slate-400" />
+                        )}
+                      </span>
+                    </button>
 
-                  {!isCollapsed && (
-                    <div className="space-y-1">
-                      {unitItems.map(({ item, index, isActive, isComplete }) => (
-                        <div
-                          key={item.id}
-                          className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer group transition-colors min-w-0 ${
-                            isActive
+                    {!isCollapsed && (
+                      <div className="space-y-1">
+                        {unitItems.map(({ item, index, isActive, isComplete }) => (
+                          <div
+                            key={item.id}
+                            className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer group transition-colors min-w-0 ${isActive
                               ? "bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800"
                               : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                          }`}
-                          onClick={() => setActiveIndex(index)}
-                        >
-                          <div className="relative shrink-0">
-                            <FileText className="h-5 w-5 text-red-500" />
-                            <Badge
-                              className="absolute -top-2 -left-2 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
-                              variant={isActive ? "default" : "secondary"}
-                            >
-                              {index + 1}
-                            </Badge>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium truncate ${isComplete ? 'text-green-400' : ''}`}>
-                              {item.title}
-                            </p>
-                            <p className="text-xs text-slate-500 truncate">Unit {item.unitNumber}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeItem(item.id);
-                              if (index <= activeIndex && activeIndex > 0) {
-                                setActiveIndex(activeIndex - 1);
-                              }
-                            }}
+                              }`}
+                            onClick={() => setActiveIndex(index)}
                           >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
-      </div>
+                            <div className="relative shrink-0">
+                              <FileText className="h-5 w-5 text-red-500" />
+                              <Badge
+                                className="absolute -top-2 -left-2 h-4 w-4 p-0 flex items-center justify-center text-[10px]"
+                                variant={isActive ? "default" : "secondary"}
+                              >
+                                {index + 1}
+                              </Badge>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm font-medium truncate ${isComplete ? 'text-green-400' : ''}`}>
+                                {item.title}
+                              </p>
+                              <p className="text-xs text-slate-500 truncate">Unit {item.unitNumber}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeItem(item.id);
+                                if (index <= activeIndex && activeIndex > 0) {
+                                  setActiveIndex(activeIndex - 1);
+                                }
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </div>
+      )}
 
       {/* Toggle Sidebar Button */}
       <button
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-r-lg p-1.5 shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
-        style={{ left: sidebarCollapsed ? 0 : "18rem" }}
+        className="absolute top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-r-lg p-1.5 shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+        style={{ left: sidebarCollapsed ? 0 : "20rem" }}
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
       >
         {sidebarCollapsed ? (
@@ -256,8 +261,8 @@ export default function StudyPage() {
         )}
       </button>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-950/50 h-full flex flex-col items-stretch overflow-hidden">
         {/* Toolbar with integrated race tracker */}
         <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
           <div className="h-14 px-4 flex items-center justify-between">
@@ -291,6 +296,15 @@ export default function StudyPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 border-indigo-200 dark:border-indigo-800"
+                onClick={() => setIsAssistantOpen(!isAssistantOpen)}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">AI Help</span>
+              </Button>
               <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-md px-2 py-1">
                 <Button
                   variant="ghost"
@@ -328,7 +342,7 @@ export default function StudyPage() {
               )}
             </div>
           </div>
-          
+
           {/* Integrated race tracker timeline */}
           {isConnected && leaderboard.length > 0 && (
             <CompactLeaderboard
@@ -369,7 +383,7 @@ export default function StudyPage() {
 
       {/* Subway Surfer Video Panel - 9:16 aspect ratio (PRO feature) */}
       {isPro && showSubwaySurfer ? (
-        <div className="h-full flex flex-col items-center justify-center bg-black border-l border-slate-800 p-2">
+        <div className="w-64 h-full shrink-0 flex flex-col items-center justify-center bg-black border-l border-slate-800 p-2 relative">
           {/* Close button */}
           <Button
             variant="ghost"
@@ -379,7 +393,7 @@ export default function StudyPage() {
           >
             <XIcon className="h-3.5 w-3.5" />
           </Button>
-          
+
           {/* Video Container with 9:16 aspect ratio */}
           <div className="relative h-full" style={{ aspectRatio: '9/16' }}>
             <iframe
@@ -400,10 +414,24 @@ export default function StudyPage() {
         >
           <Gamepad2 className="h-4 w-4" />
         </button>
-      ) : null}
+      ) : null
+      }
+
+      {/* AI Assistant Sidebar */}
+      {
+        isAssistantOpen && (
+          <div className="shrink-0 w-80 lg:w-96 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 h-full overflow-hidden flex flex-col">
+            <AiAssistantSidebar
+              onClose={() => setIsAssistantOpen(false)}
+              activeFileTitle={activeItem?.title}
+              activeFileUrl={activeItem?.url}
+            />
+          </div>
+        )
+      }
 
       {/* Lofi Music Player */}
       <LofiPlayer />
-    </div>
+    </div >
   );
 }

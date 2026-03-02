@@ -599,7 +599,9 @@ Examples:
     print(f"{Fore.GREEN}{Style.BRIGHT}  goat-scraper{Style.RESET_ALL}")
     print()
 
-    # Load credentials from .env file
+    print(f"{Fore.GREEN}{Style.BRIGHT}  goat-scraper{Style.RESET_ALL}")
+    print()
+
     try:
         from dotenv import load_dotenv
 
