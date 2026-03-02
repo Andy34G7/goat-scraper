@@ -61,4 +61,4 @@ ENV NODE_ENV="production"
 # Using node instead of bun to run the standalone build as it's optimized for Node.js
 WORKDIR /app/frontend
 
-CMD ["node", ".next/standalone/frontend/server.js"]
+CMD ["node", ".next/standalone/server.js"]
