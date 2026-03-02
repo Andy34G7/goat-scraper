@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+.ruff_cache
+courses.json
+fronted/public/courses
+frontend/node_modules
+frontend/.next
+frontend/.turbo
+frontend/.DS_Store
+.env
+.env*.local
+*.log
